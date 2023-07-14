@@ -19,19 +19,38 @@ public class MapActivity extends AppCompatActivity {
     private int posX;
     private int posY;
 
-    private ImageView ivPerson;
-
     private Context context = this;
 
     private Player player;
+    private ImageView ivPlayer;
     private Enemy[] enemies;
+    private ImageView[] ivEnemies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        ivPerson = findViewById(R.id.iv_person);
+        player = new Player(CharacterFactory.mathTeacher(2,3));
+        ivPlayer = findViewById(R.id.iv_player);
+        ivPlayer.setImageResource(R.drawable.im_person);
+
+        enemies = new Enemy[5];
+        enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
+        enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
+        enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
+        enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
+        enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+
+        ivEnemies = new ImageView[5];
+        ivEnemies[0] = findViewById(R.id.iv_enemy1);
+        ivEnemies[1] = findViewById(R.id.iv_enemy2);
+        ivEnemies[2] = findViewById(R.id.iv_enemy3);
+        ivEnemies[3] = findViewById(R.id.iv_enemy4);
+        ivEnemies[4] = findViewById(R.id.iv_enemy5);
+        for (int i=0; i<ivEnemies.length; i++) {
+            ivEnemies[i].setImageResource(enemies[i].getImageId());
+        }
 
         btnsMove[0][0] = (Button) findViewById(R.id.btn_00);
         Log.d("init",""+btnsMove[0][0].getId());
@@ -109,7 +128,22 @@ public class MapActivity extends AppCompatActivity {
         posX = 3;
         posY = 4;
 
+        moveCharacterImage(ivPlayer,player.getX(), player.getY());
+
+        moveEnemies();
+
         move();
+    }
+
+    private void moveEnemies() {
+        for (int i=0; i<enemies.length; i++) {
+
+            Enemy enemy = enemies[i];
+            ImageView ivEnemy = ivEnemies[i];
+
+            moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+
+        }
     }
 
     private void move() {
@@ -123,7 +157,7 @@ public class MapActivity extends AppCompatActivity {
 
         Button current = btnsMove[posY][posX];
 
-        current.setBackgroundColor(ContextCompat.getColor(context, R.color.black));
+        current.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
 
         //left
         if (posX > 0) {
@@ -134,7 +168,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     posX -= 1;
-                    movePlayerImage(posX,posY);
+                    moveCharacterImage(ivPlayer,posX,posY);
                     move();
                 }
             });
@@ -149,7 +183,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     posX += 1;
-                    movePlayerImage(posX,posY);
+                    moveCharacterImage(ivPlayer,posX,posY);
                     move();
                 }
             });
@@ -164,7 +198,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     posY -= 1;
-                    movePlayerImage(posX,posY);
+                    moveCharacterImage(ivPlayer,posX,posY);
                     move();
                 }
             });
@@ -179,7 +213,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     posY += 1;
-                    movePlayerImage(posX,posY);
+                    moveCharacterImage(ivPlayer,posX,posY);
                     move();
                 }
             });
@@ -187,21 +221,21 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private void movePlayerImage(int xPos, int yPos) {
+    private void moveCharacterImage(ImageView ivCharacter, int xPos, int yPos) {
         ConstraintLayout layout = findViewById(R.id.constraint_map);
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(layout);
 
         Button current = btnsMove[yPos][xPos];
 
-        constraintSet.connect(ivPerson.getId(), ConstraintSet.START,    current.getId(), ConstraintSet.START);
-        constraintSet.connect(ivPerson.getId(), ConstraintSet.END,      current.getId(), ConstraintSet.END);
-        constraintSet.connect(ivPerson.getId(), ConstraintSet.TOP,      current.getId(), ConstraintSet.TOP);
-        constraintSet.connect(ivPerson.getId(), ConstraintSet.BOTTOM,   current.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(ivCharacter.getId(), ConstraintSet.START,    current.getId(), ConstraintSet.START);
+        constraintSet.connect(ivCharacter.getId(), ConstraintSet.END,      current.getId(), ConstraintSet.END);
+        constraintSet.connect(ivCharacter.getId(), ConstraintSet.TOP,      current.getId(), ConstraintSet.TOP);
+        constraintSet.connect(ivCharacter.getId(), ConstraintSet.BOTTOM,   current.getId(), ConstraintSet.BOTTOM);
 
         TransitionManager.beginDelayedTransition(layout);
         constraintSet.applyTo(layout);
-        ivPerson.invalidate();
+        ivCharacter.invalidate();
 
     }
 }

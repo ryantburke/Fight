@@ -773,7 +773,62 @@
         app:layout_constraintBottom_toTopOf="@+id/gl_h9" />
 
     <ImageView
-        android:id="@+id/iv_person"
+        android:id="@+id/iv_player"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h2"
+        app:layout_constraintEnd_toStartOf="@+id/btn_01"
+        app:layout_constraintStart_toStartOf="@+id/btn_00"
+        app:layout_constraintTop_toTopOf="@+id/btn_00"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_enemy1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h2"
+        app:layout_constraintEnd_toStartOf="@+id/btn_01"
+        app:layout_constraintStart_toStartOf="@+id/btn_00"
+        app:layout_constraintTop_toTopOf="@+id/btn_00"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_enemy2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h2"
+        app:layout_constraintEnd_toStartOf="@+id/btn_01"
+        app:layout_constraintStart_toStartOf="@+id/btn_00"
+        app:layout_constraintTop_toTopOf="@+id/btn_00"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_enemy3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h2"
+        app:layout_constraintEnd_toStartOf="@+id/btn_01"
+        app:layout_constraintStart_toStartOf="@+id/btn_00"
+        app:layout_constraintTop_toTopOf="@+id/btn_00"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_enemy4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h2"
+        app:layout_constraintEnd_toStartOf="@+id/btn_01"
+        app:layout_constraintStart_toStartOf="@+id/btn_00"
+        app:layout_constraintTop_toTopOf="@+id/btn_00"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_enemy5"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"

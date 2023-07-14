@@ -8,14 +8,7 @@ public class Player extends Character implements Serializable {
 
 
     public Player(Character character) {
-        this.name = character.getName();
-        this.hp_max = character.getHp_max();
-        this.hp = character.getHp();
-        this.attacks = character.getAttacks();
-        this.winMessage = character.getWinMessage();
-        this.loseMessage = character.getLoseMessage();
-        this.y= character.getY();
-        this.x= character.getX();
+        super(character);
         this.level = 0;
     }
 

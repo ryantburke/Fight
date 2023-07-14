@@ -20,13 +20,15 @@ public class Character{
     protected String loseMessage;
     protected int x;
     protected int y;
+    protected int imageId;
     protected int ID;
     private static int numCharacters;
 
     public Character() {}
 
-    public Character(String name, int hp_max, Attack[] attacks, String winMessage, String loseMessage, int x, int y) {
+    public Character(String name, int imageId, int hp_max, Attack[] attacks, String winMessage, String loseMessage, int x, int y) {
         this.name = name;
+        this.imageId = imageId;
         this.hp_max = hp_max;
         this.hp = hp_max;
         this.attacks = attacks;
@@ -39,6 +41,7 @@ public class Character{
 
     public Character(Character character) {
         this.name = character.getName();
+        this.imageId = character.imageId;
         this.hp_max = character.getHp_max();
         this.hp = character.getHp();
         this.attacks = character.getAttacks();
@@ -54,6 +57,10 @@ public class Character{
 
     public String getName(){
         return name;
+    }
+
+    public int getImageId() {
+        return imageId;
     }
 
     public int getHp() {

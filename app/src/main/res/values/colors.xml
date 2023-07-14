@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#4CAF50</color>
-    <color name="map_btn_tint">#A16363</color>
+    <color name="map_btn_tint">#FFEB3B</color>
     <color name="battle_btn_tint">#FF9800</color>
     <color name="battle_btn_txt">#FFFFFF</color>
 </resources>

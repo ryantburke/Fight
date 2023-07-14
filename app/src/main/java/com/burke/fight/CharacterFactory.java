@@ -15,9 +15,9 @@ public class CharacterFactory {
         return list;
     }
 
-    public static Character mathTeacher(String type, int x, int y){
+    public static Character mathTeacher(int x, int y){
         String name = "Math Teacher";
-        int color = Color.WHITE;
+        int imageId = R.drawable.im_math_teacher;
         int hp_max = 500;
         Attack a1 = new Attack("Number Crunch",                 20, 1.0,    100,true);
         Attack a2 = new Attack("Ruler Slap",                    50, 0.66,   5,  true);
@@ -26,12 +26,12 @@ public class CharacterFactory {
         Attack[] attacks = {a1,a2,a3,a4};
         String winMessage = " exclaims, \"Precisely! It is so.\"";
         String loseMessage = " grades away confused and scared.";
-        return new Character(name,hp_max,attacks,winMessage,loseMessage, x, y);
+        return new Character(name,imageId,hp_max,attacks,winMessage,loseMessage, x, y);
     }
 
-    public static Character burgerFlipper(String type, int x, int y){
+    public static Character burgerFlipper(int x, int y){
         String name = "Burger Flipper";
-        int color = Color.RED;
+        int imageId = R.drawable.im_burger_flipper;
         int hp_max = 500;
         Attack a1 = new Attack("Patty Slap",                                            15, 1.0,    100,true);
         Attack a2 = new Attack("Grease Slinger",                                        70, 0.66,   5,  true);
@@ -40,12 +40,12 @@ public class CharacterFactory {
         Attack[] attacks = {a1,a2,a3,a4};
         String winMessage = " takes a day off to work on his poetry.";
         String loseMessage = " notices a grease stain on his shirt.";
-        return new Character(name,hp_max,attacks,winMessage,loseMessage, x, y);
+        return new Character(name,imageId,hp_max,attacks,winMessage,loseMessage, x, y);
     }
 
-    public static Character belowAverageStudent(String type, int x, int y){
+    public static Character belowAverageStudent(int x, int y){
         String name = "Below Average Student";
-        int color = Color.YELLOW;
+        int imageId = R.drawable.im_below_average_student;
         int hp_max = 1;
         Attack a1 = new Attack("Scratch Face",  10,     1.0,    100,true);
         Attack a2 = new Attack("Viral TikTok",  10000,  0.05,   5,  true);
@@ -54,12 +54,12 @@ public class CharacterFactory {
         Attack[] attacks = {a1,a2,a3,a4};
         String winMessage = " smiels :)";
         String loseMessage = " frowns :(";
-        return new Character(name,hp_max,attacks,winMessage,loseMessage, x, y);
+        return new Character(name,imageId,hp_max,attacks,winMessage,loseMessage, x, y);
     }
 
-    public static Character organDonor(String type, int x, int y){
+    public static Character organDonor(int x, int y){
         String name = "Organ Donor";
-        int color = Color.YELLOW;
+        int imageId = R.drawable.im_organ_doner;
         int hp_max = 200;
         Attack a1 = new Attack("Generate Sympathy",                             50,   0.9, 100,true);
         Attack a2 = new Attack("Give back to community",                        -50,  0.8, 5,  true);
@@ -68,12 +68,12 @@ public class CharacterFactory {
         Attack[] attacks = {a1,a2,a3,a4};
         String winMessage = " smirks, thinking about how happy someone else is.";
         String loseMessage = " drinks away their sorrows, then dies of alcohol poisoning.";
-        return new Character(name,hp_max,attacks,winMessage,loseMessage,  x, y);
+        return new Character(name,imageId,hp_max,attacks,winMessage,loseMessage,  x, y);
     }
 
-    public static Character wickedWitch(String type, int x, int y){
+    public static Character wickedWitch(int x, int y){
         String name = "Wicked Witch";
-        int color = Color.YELLOW;
+        int imageId = R.drawable.im_wicked_witch;
         int hp_max = 400;
         Attack a1 = new Attack("Magical Wand Casting Spell",                                                                    20,   1.0, 100,true);
         Attack a2 = new Attack("The Cackle",                                                                                    10,   1.0, 10, true);
@@ -82,31 +82,31 @@ public class CharacterFactory {
         Attack[] attacks = {a1,a2,a3,a4};
         String winMessage = " flys away cackling to herself.";
         String loseMessage = " drowns in a well of personal dispair.";
-        return new Character(name,hp_max,attacks,winMessage,loseMessage, x, y);
+        return new Character(name,imageId,hp_max,attacks,winMessage,loseMessage, x, y);
     }
 
 
-    public static Character characterList(String type, int characterNumber){
+    public static Character characterList(int characterNumber){
         int x = 3;
         int y = 3;
-        return characterList(type, characterNumber, x, y);
+        return characterList(characterNumber, x, y);
         }
 
 
-    public static Character characterList(String type, int characterNumber, int x, int y){
+    public static Character characterList(int characterNumber, int x, int y){
         switch (characterNumber) {
             case 0:
-                return mathTeacher(type, x, y);
+                return mathTeacher(x, y);
             case 1:
-                return burgerFlipper(type, x, y);
+                return burgerFlipper(x, y);
             case 2:
-                return belowAverageStudent(type, x, y);
+                return belowAverageStudent(x, y);
             case 3:
-                return organDonor(type, x, y);
+                return organDonor(x, y);
             case 4:
-                return wickedWitch(type, x, y);
+                return wickedWitch(x, y);
             default:
-                return mathTeacher(type, x,y);
+                return mathTeacher(x,y);
         }
     }
 }

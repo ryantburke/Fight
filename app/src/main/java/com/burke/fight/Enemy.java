@@ -6,10 +6,11 @@ import java.io.Serializable;
 
 public class Enemy extends Character{
 
+    int level;
 
-    public Enemy(String name, int hp_max, Attack[] attacks, String winMessage, String loseMesssage, int x, int y){
-        super(name, hp_max, attacks, winMessage, loseMesssage, x, y);
-        Log.d("enemy",toString());
+    public Enemy(Character character, int level) {
+        super(character);
+        this.level = level;
     }
 
 
