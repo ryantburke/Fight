@@ -1,0 +1,394 @@
+package com.burke.fight;
+
+import android.annotation.SuppressLint;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowInsets;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.burke.fight.databinding.ActivityBattleBinding;
+
+/**
+ * An example full-screen activity that shows and hides the system UI (i.e.
+ * status bar and navigation/system bar) with user interaction.
+ */
+public class BattleActivityOLD extends AppCompatActivity {
+
+
+    private Character player1;
+    private Character player2;
+    private Button[] attackButtons;
+    private Button next;
+
+    TextView player1Name;
+    TextView player1Hp;
+    TextView player2Name;
+    TextView player2Hp;
+    TextView battleText;
+    Intent intentMap;
+    private int turn = (int) (Math.random() * 2);
+
+
+    /**
+     * Whether or not the system UI should be auto-hidden after
+     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
+     */
+    private static final boolean AUTO_HIDE = false;
+
+    /**
+     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
+     * user interaction before hiding the system UI.
+     */
+    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+    /**
+     * Some older devices needs a small delay between UI widget updates
+     * and a change of the status and navigation bar.
+     */
+    private static final int UI_ANIMATION_DELAY = 300;
+    private final Handler mHideHandler = new Handler(Looper.myLooper());
+    private View mContentView;
+    private final Runnable mHidePart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            // Delayed removal of status and navigation bar
+            if (Build.VERSION.SDK_INT >= 30) {
+                mContentView.getWindowInsetsController().hide(
+                        WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+            } else {
+                // Note that some of these constants are new as of API 16 (Jelly Bean)
+                // and API 19 (KitKat). It is safe to use them, as they are inlined
+                // at compile-time and do nothing on earlier devices.
+                mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+            }
+        }
+    };
+    private View mControlsView;
+    private final Runnable mShowPart2Runnable = new Runnable() {
+        @Override
+        public void run() {
+            // Delayed display of UI elements
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.show();
+            }
+            mControlsView.setVisibility(View.VISIBLE);
+        }
+    };
+    private boolean mVisible;
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (AUTO_HIDE) {
+                        delayedHide(AUTO_HIDE_DELAY_MILLIS);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    view.performClick();
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        }
+    };
+    private ActivityBattleBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        binding = ActivityBattleBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        mVisible = true;
+        mControlsView = binding.fullscreenContentControls;
+        mContentView = binding.fullscreenContent;
+
+        //intent back to map once battle has finished
+        intentMap = new Intent(this, MapActivity.class);
+
+        //get characters
+        GameApplication game = (GameApplication) getApplication();
+        player1 = game.getHero();
+        player2 = (Character) getIntent().getSerializableExtra("ENEMY");
+
+        //initialize stats buttons
+        player1Name =  findViewById(R.id.player1_name);
+        player1Hp    = findViewById(R.id.player1_hp);
+        player2Name =  findViewById(R.id.player2_name);
+        player2Hp   =  findViewById(R.id.player2_hp);
+        player1Name.setText(player1.getName());
+        player1Hp.setText("HP: " + player1.getHp());
+        player2Name.setText(player2.getName());
+        player2Hp.setText("HP: " + player2.getHp());
+
+        //attack buttons
+        attackButtons = new Button[4];
+        attackButtons[0] = findViewById(R.id.attack1);
+        attackButtons[1] = findViewById(R.id.attack2);
+        attackButtons[2] = findViewById(R.id.attack3);
+        attackButtons[3] = findViewById(R.id.attack4);
+
+        //battle text
+        battleText = findViewById(R.id.battle_text);
+        battleText.setText("\nLet the battle commence!");
+
+        //next button
+        next = findViewById(R.id.next);
+        next.setVisibility(View.INVISIBLE);
+
+        setButtons();
+        makeMove(player1,player2);
+
+
+        // Set up the user interaction to manually show or hide the system UI.
+        mContentView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggle();
+            }
+        });
+
+        // Upon interacting with UI controls, delay any scheduled hide()
+        // operations to prevent the jarring behavior of controls going away
+        // while interacting with the UI.
+        binding.dummyButton.setOnTouchListener(mDelayHideTouchListener);
+    }
+
+
+    private void setButtons(){
+        Character player;
+        if (turn%2==0){
+            player = player1;
+        } else {
+            player = player2;
+        }
+        player1Hp.setText("HP: " + player1.getHp());
+        player2Hp.setText("HP: " + player2.getHp());
+        for (int i = 0; i< attackButtons.length; i++) {
+            if (player.getAttack(i).getIsUnlocked()) {
+                attackButtons[i].setText("\t" + player.getAttack(i).getName() + "\t\t(" + player.getAttack(i).getNumUsesLeft() + " uses left)");
+                attackButtons[i].setClickable(true);
+                attackButtons[i].setEnabled(true);
+                if (player.getAttack(i).isEmpty()) {
+                    attackButtons[i].setClickable(false);
+                    attackButtons[i].setEnabled(false);
+                }
+            }
+            else {
+                attackButtons[i].setText("Attack not yet unlocked");
+                attackButtons[i].setClickable(false);
+                attackButtons[i].setEnabled(false);
+            }
+        }
+
+    }
+
+    private void makeMove(Character attacker, Character defender){
+        for (int i=0; i< attackButtons.length; i++){
+            final int k = i;
+            attackButtons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (attacker.getAttack(k).useOn(defender)){
+                        battleText.setText("ITS A HIT!\n"+attacker.getAttack(k).getDamage() + " DAMAGE");
+                    } else {
+                        battleText.setText("MISS!");
+                    }
+                    checkVictory();
+                    turn++;
+                    setButtons();
+                    makeMove(defender,attacker);
+                }
+            });
+        }
+    }
+
+    private void checkVictory(){
+        if (player1.getHp() <= 0 || player2.getHp() <= 0) {
+            if (player1.getHp() <= 0) {
+                battleText.setText("\n" + player1.getName() + player1.getLoseMesssage() + "\n\n\n" +
+                        player2.getName() + player2.getWinMessage());
+            } else if (player2.getHp() <= 0) {
+                battleText.setText("\n" + player1.getName() + player1.getLoseMesssage() + "\n\n\n" +
+                        player2.getName() + player2.getWinMessage());
+            }
+            for (int i = 0; i < attackButtons.length; i++) {
+                attackButtons[i].setVisibility(View.INVISIBLE);
+            }
+            next.setVisibility(View.VISIBLE);
+            next.setText("LEVEL UP");
+            next.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    levelUp();
+                }
+            });
+        }
+
+    }
+
+    private void levelUp(){
+        //change button visibility
+        next.setVisibility(View.INVISIBLE);
+        attackButtons[0].setVisibility(View.VISIBLE);
+        attackButtons[1].setVisibility(View.VISIBLE);
+        attackButtons[2].setVisibility(View.VISIBLE);
+
+        //options
+        battleText.setText("CHOOSE AN OPTION");
+        attackButtons[0].setText("LEVEL UP AN ATTACK");
+        attackButtons[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                upAttack();
+            }
+        });
+        attackButtons[1].setText("GAIN 100 HP");
+        attackButtons[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                player1.setHp_max(player1.getHp_max() + 100);
+                backToMap();
+            }
+        });
+        attackButtons[2].setText("RESTORE ALL STATS");
+        attackButtons[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                player1.restore();
+                backToMap();
+            }
+        });
+        if (player1.getAttack(3).getIsUnlocked() == false) {
+            attackButtons[3].setVisibility(View.VISIBLE);
+            attackButtons[3].setText("UNLOCK SECRET ATTACK");
+            attackButtons[3].setClickable(true);
+            attackButtons[3].setEnabled(true);
+            attackButtons[3].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    player1.unlockSecretAttack();
+                    backToMap();
+                }
+            });
+        }
+    }
+
+
+    private void upAttack(){
+        attackButtons[3].setVisibility(View.VISIBLE);
+        for (int i = 0; i< attackButtons.length; i++) {
+            final int k = i;
+            if (player1.getAttack(i).getIsUnlocked() == true){
+                attackButtons[i].setText(player1.getAttack(i).getName());
+                attackButtons[i].setClickable(true);
+                attackButtons[i].setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        player1.upAttack(k);
+                        backToMap();
+                    }
+                });
+            }
+            else {
+                attackButtons[i].setText("Attack not yet unlocked");
+                attackButtons[i].setClickable(false);
+            }
+        }
+    }
+
+    private void backToMap(){
+        intentMap.putExtra("PLAYER",player1);
+        startActivity(intentMap);
+    }
+
+
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Trigger the initial hide() shortly after the activity has been
+        // created, to briefly hint to the user that UI controls
+        // are available.
+        delayedHide(100);
+    }
+
+    private void toggle() {
+        if (mVisible) {
+            hide();
+        } else {
+            show();
+        }
+    }
+
+    private void hide() {
+        // Hide UI first
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        mControlsView.setVisibility(View.GONE);
+        mVisible = false;
+
+        // Schedule a runnable to remove the status and navigation bar after a delay
+        mHideHandler.removeCallbacks(mShowPart2Runnable);
+        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+    }
+
+    private void show() {
+        // Show the system bar
+        if (Build.VERSION.SDK_INT >= 30) {
+            mContentView.getWindowInsetsController().show(
+                    WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+        } else {
+            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        }
+        mVisible = true;
+
+        // Schedule a runnable to display UI elements after a delay
+        mHideHandler.removeCallbacks(mHidePart2Runnable);
+        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+    }
+
+    /**
+     * Schedules a call to hide() in delay milliseconds, canceling any
+     * previously scheduled calls.
+     */
+    private void delayedHide(int delayMillis) {
+        mHideHandler.removeCallbacks(mHideRunnable);
+        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+}
