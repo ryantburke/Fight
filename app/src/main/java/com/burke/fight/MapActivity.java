@@ -128,12 +128,17 @@ public class MapActivity extends AppCompatActivity {
 
     private void initializeEnemies() {
 
-        enemies = new Enemy[5];
-        enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
-        enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
-        enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
-        enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
-        enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+        enemies = (Enemy[]) getIntent().getSerializableExtra("enemies");
+
+        if (enemies == null) {
+            enemies = new Enemy[5];
+            enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
+            enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
+            enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
+            enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
+            enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+        }
+
 
         ivEnemies = new ImageView[5];
         ivEnemies[0] = findViewById(R.id.iv_enemy1);
@@ -151,7 +156,10 @@ public class MapActivity extends AppCompatActivity {
             Enemy enemy = enemies[i];
             ImageView ivEnemy = ivEnemies[i];
 
-            moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            if (enemy.getHp() > 0) {
+                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            }
+
         }
 
     }
@@ -181,7 +189,7 @@ public class MapActivity extends AppCompatActivity {
 
     private void moveEnemy(Enemy enemy, ImageView ivEnemy){
         double chance = Math.random();
-        if (chance < .5) {
+        if (chance < .5 && enemy.getHp() > 0) {
             int dir = (int) (Math.random() * 4);
 
             if (dir == 0 && enemy.getY() > 0 && !enemyAdjacent(enemy)[0]) {
@@ -322,13 +330,15 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void checkIfFight(){
-        for (Enemy enemy:enemies) {
-            if (player.getX() == enemy.getX() && player.getY() == enemy.getY()) {
+        for (int i=0; i< enemies.length; i++) {
+            Enemy enemy = enemies[i];
+            if (player.getX() == enemy.getX() && player.getY() == enemy.getY() && enemy.getHp() > 0) {
                 continueMoving = false;
                 handler.removeCallbacks(runnableMoveEnemies);
                 Intent intentFight = new Intent(context,FightActivity.class);
                 intentFight.putExtra("player",player);
-                intentFight.putExtra("enemy",enemy);
+                intentFight.putExtra("enemyNo",i);
+                intentFight.putExtra("enemies",enemies);
                 Log.d("match",enemy.getName());
                 startActivity(intentFight);
                 return;

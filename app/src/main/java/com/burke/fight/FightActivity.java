@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 public class FightActivity extends AppCompatActivity {
     private Player player;
+    private Enemy[] enemies;
     private Enemy enemy;
     private int turn;
 
@@ -52,7 +53,9 @@ public class FightActivity extends AppCompatActivity {
 
     private void initialize() {
         player = (Player) getIntent().getSerializableExtra("player");
-        enemy = (Enemy) getIntent().getSerializableExtra("enemy");
+        enemies = (Enemy[]) getIntent().getSerializableExtra("enemies");
+        int enemyNo = getIntent().getIntExtra("enemyNo",-1);
+        enemy = enemies[enemyNo];
 
         tvPlayerName = findViewById(R.id.tv_player_name);
         tvPlayerName.setText(player.getName());
@@ -350,6 +353,7 @@ public class FightActivity extends AppCompatActivity {
                     public void run() {
                         Intent mapIntent = new Intent(context, MapActivity.class);
                         mapIntent.putExtra("player",player);
+                        mapIntent.putExtra("enemies", (Enemy[]) getIntent().getSerializableExtra("enemies"));
                         startActivity(mapIntent);
                     }
                 }, 2000);
