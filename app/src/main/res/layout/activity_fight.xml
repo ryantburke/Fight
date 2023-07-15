@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/battle_bg"
     android:id="@+id/constraint_fight">
 
     <androidx.constraintlayout.widget.Guideline
@@ -98,6 +100,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Player Name"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/iv_player"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toStartOf="@+id/guideline3" />
@@ -107,6 +110,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enemy Name"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/iv_enemy"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintStart_toStartOf="@+id/guideline5" />
@@ -168,6 +172,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="24sp"
         android:layout_margin="10dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="@+id/guideline6"

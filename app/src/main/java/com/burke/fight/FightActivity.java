@@ -1,7 +1,11 @@
 package com.burke.fight;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 public class FightActivity extends AppCompatActivity {
-
     private Player player;
     private Enemy enemy;
     private int turn;
@@ -29,6 +32,8 @@ public class FightActivity extends AppCompatActivity {
     private static final long DELAY_HIT_ANIMATION = 700;
     private static final long DELAY_BEFORE_NEXT_TURN = 2000;
     private static final long DELAY_BEFORE_ENEMY_TURN = 700;
+    private static final long DELAY_VICTORY_SCREEN = 3000;
+    private Context context = this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,6 +88,8 @@ public class FightActivity extends AppCompatActivity {
             } else {
                 enemyTurn();
             }
+        } else {
+            displayVictor();
         }
     }
 
@@ -297,7 +304,59 @@ public class FightActivity extends AppCompatActivity {
                 attacker.invalidate();
             }
         }, DELAY_HIT_ANIMATION);
+    }
 
+    private void displayVictor() {
+        if (player.getHp() > enemy.getHp()) {
+            animateVictor(player,enemy);
+        } else {
+            animateVictor(enemy,player);
+        }
+    }
+
+    private void animateVictor(Character victor, Character loser) {
+        setContentView(R.layout.activity_fight_victory);
+
+        ImageView ivVictor = findViewById(R.id.iv_victor);
+        ImageView ivLoser = findViewById(R.id.iv_loser);
+        TextView tvDescription = findViewById(R.id.tv_description);
+
+        ivVictor.setImageResource(victor.getImageId());
+        ivLoser.setImageResource(loser.getImageId());
+        ivLoser.setVisibility(View.INVISIBLE);
+        tvDescription.setText(victor.getWinMessage());
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                tvDescription.setText(loser.getLoseMessage());
+
+                ivLoser.setVisibility(View.VISIBLE);
+
+                ConstraintLayout layout = findViewById(R.id.constraint_fight_victory);
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(layout);
+
+                constraintSet.clear(ivLoser.getId(), ConstraintSet.START);
+                constraintSet.connect(ivLoser.getId(), ConstraintSet.START,  R.id.gl_right, ConstraintSet.START);
+
+                ChangeBounds transition = new ChangeBounds();
+                transition.setDuration(2000L);
+                TransitionManager.beginDelayedTransition(layout,transition);
+                constraintSet.applyTo(layout);
+                ivLoser.invalidate();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent mapIntent = new Intent(context, MapActivity.class);
+                        mapIntent.putExtra("player",player);
+                        startActivity(mapIntent);
+                    }
+                }, 2000);
+
+
+            }
+        },DELAY_VICTORY_SCREEN);
 
     }
 }

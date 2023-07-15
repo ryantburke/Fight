@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ public class MapActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private Runnable runnableMoveEnemies;
-    boolean continueMoving;
+    private boolean continueMoving;
 
 
     @Override
@@ -37,7 +38,11 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        player = new Player(CharacterFactory.mathTeacher(2,3));
+        player = (Player) getIntent().getSerializableExtra("player");
+        if (player == null) {
+            player = new Player(CharacterFactory.mathTeacher(2,3));
+        }
+
         ivPlayer = findViewById(R.id.iv_player);
         ivPlayer.setImageResource(R.drawable.im_person);
 
@@ -149,21 +154,6 @@ public class MapActivity extends AppCompatActivity {
             moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
         }
 
-    }
-
-    private void checkIfFight(){
-        for (Enemy enemy:enemies) {
-            if (player.getX() == enemy.getX() && player.getY() == enemy.getY()) {
-                continueMoving = false;
-                handler.removeCallbacks(runnableMoveEnemies);
-                Intent intentFight = new Intent(context,FightActivity.class);
-                intentFight.putExtra("player",player);
-                intentFight.putExtra("enemy",enemy);
-                Log.d("match",enemy.getName());
-                startActivity(intentFight);
-                return;
-            }
-        }
     }
 
     private void moveEnemies() {
@@ -330,4 +320,20 @@ public class MapActivity extends AppCompatActivity {
         ivCharacter.invalidate();
 
     }
+
+    private void checkIfFight(){
+        for (Enemy enemy:enemies) {
+            if (player.getX() == enemy.getX() && player.getY() == enemy.getY()) {
+                continueMoving = false;
+                handler.removeCallbacks(runnableMoveEnemies);
+                Intent intentFight = new Intent(context,FightActivity.class);
+                intentFight.putExtra("player",player);
+                intentFight.putExtra("enemy",enemy);
+                Log.d("match",enemy.getName());
+                startActivity(intentFight);
+                return;
+            }
+        }
+    }
+
 }
