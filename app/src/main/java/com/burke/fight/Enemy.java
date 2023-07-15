@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.io.Serializable;
 
-public class Enemy extends Character{
+public class Enemy extends Character implements Serializable{
 
     int level;
 

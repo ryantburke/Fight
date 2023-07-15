@@ -6,7 +6,10 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
@@ -16,8 +19,6 @@ import android.widget.ImageView;
 public class MapActivity extends AppCompatActivity {
 
     private Button[][] btnsMove = new Button[8][8];
-    private int posX;
-    private int posY;
 
     private Context context = this;
 
@@ -25,6 +26,11 @@ public class MapActivity extends AppCompatActivity {
     private ImageView ivPlayer;
     private Enemy[] enemies;
     private ImageView[] ivEnemies;
+
+    private Handler handler = new Handler();
+    private Runnable runnableMoveEnemies;
+    boolean continueMoving;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,25 +41,14 @@ public class MapActivity extends AppCompatActivity {
         ivPlayer = findViewById(R.id.iv_player);
         ivPlayer.setImageResource(R.drawable.im_person);
 
-        enemies = new Enemy[5];
-        enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
-        enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
-        enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
-        enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
-        enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+        initializeMap();
+        initializeEnemies();
+        moveEnemies();
+        movePlayer();
+    }
 
-        ivEnemies = new ImageView[5];
-        ivEnemies[0] = findViewById(R.id.iv_enemy1);
-        ivEnemies[1] = findViewById(R.id.iv_enemy2);
-        ivEnemies[2] = findViewById(R.id.iv_enemy3);
-        ivEnemies[3] = findViewById(R.id.iv_enemy4);
-        ivEnemies[4] = findViewById(R.id.iv_enemy5);
-        for (int i=0; i<ivEnemies.length; i++) {
-            ivEnemies[i].setImageResource(enemies[i].getImageId());
-        }
-
+    private void initializeMap(){
         btnsMove[0][0] = (Button) findViewById(R.id.btn_00);
-        Log.d("init",""+btnsMove[0][0].getId());
         btnsMove[0][1] = findViewById(R.id.btn_01);
         btnsMove[0][2] = findViewById(R.id.btn_02);
         btnsMove[0][3] = findViewById(R.id.btn_03);
@@ -124,29 +119,126 @@ public class MapActivity extends AppCompatActivity {
         btnsMove[7][5] = findViewById(R.id.btn_75);
         btnsMove[7][6] = findViewById(R.id.btn_76);
         btnsMove[7][7] = findViewById(R.id.btn_77);
-
-        posX = 3;
-        posY = 4;
-
-        moveCharacterImage(ivPlayer,player.getX(), player.getY());
-
-        moveEnemies();
-
-        move();
     }
 
-    private void moveEnemies() {
+    private void initializeEnemies() {
+
+        enemies = new Enemy[5];
+        enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
+        enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
+        enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
+        enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
+        enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+
+        ivEnemies = new ImageView[5];
+        ivEnemies[0] = findViewById(R.id.iv_enemy1);
+        ivEnemies[1] = findViewById(R.id.iv_enemy2);
+        ivEnemies[2] = findViewById(R.id.iv_enemy3);
+        ivEnemies[3] = findViewById(R.id.iv_enemy4);
+        ivEnemies[4] = findViewById(R.id.iv_enemy5);
+        for (int i=0; i<ivEnemies.length; i++) {
+            ivEnemies[i].setImageResource(enemies[i].getImageId());
+        }
+
+        moveCharacterImage(ivPlayer,player.getX(), player.getY());
         for (int i=0; i<enemies.length; i++) {
 
             Enemy enemy = enemies[i];
             ImageView ivEnemy = ivEnemies[i];
 
             moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+        }
 
+    }
+
+    private void checkIfFight(){
+        for (Enemy enemy:enemies) {
+            if (player.getX() == enemy.getX() && player.getY() == enemy.getY()) {
+                continueMoving = false;
+                handler.removeCallbacks(runnableMoveEnemies);
+                Intent intentFight = new Intent(context,FightActivity.class);
+                intentFight.putExtra("player",player);
+                intentFight.putExtra("enemy",enemy);
+                Log.d("match",enemy.getName());
+                startActivity(intentFight);
+                return;
+            }
         }
     }
 
-    private void move() {
+    private void moveEnemies() {
+
+        continueMoving = true;
+
+        checkIfFight();
+
+        handler = new Handler(Looper.getMainLooper());
+        runnableMoveEnemies = new Runnable() {
+            @Override
+            public void run() {
+                if (continueMoving) {
+                    for (int i=0; i< enemies.length; i++) {
+                        moveEnemy(enemies[i], ivEnemies[i]);
+                    }
+                    moveEnemies();
+                }
+
+            }
+        };
+        handler.postDelayed(runnableMoveEnemies,250);
+
+    }
+
+    private void moveEnemy(Enemy enemy, ImageView ivEnemy){
+        double chance = Math.random();
+        if (chance < .5) {
+            int dir = (int) (Math.random() * 4);
+
+            if (dir == 0 && enemy.getY() > 0 && !enemyAdjacent(enemy)[0]) {
+                enemy.moveUp();
+                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            }
+            else if (dir == 1 && enemy.getY() < btnsMove.length - 1 && !enemyAdjacent(enemy)[1]) {
+                enemy.moveDown();
+                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            }
+            else if (dir == 2 && enemy.getX() > 0 && !enemyAdjacent(enemy)[2]) {
+                enemy.moveLeft();
+                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            }
+            else if (dir == 3 && enemy.getX() < btnsMove[0].length-1 && !enemyAdjacent(enemy)[3]) {
+                enemy.moveRight();
+                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+            }
+            else {
+                moveEnemy(enemy, ivEnemy);
+            }
+        }
+    }
+
+    private boolean[] enemyAdjacent(Enemy enemyCur) {
+        boolean[] isNextTo = new boolean[4];
+        for (Enemy enemy:enemies) {
+            if ((enemyCur.getY() - enemy.getY()) == 1) {
+                isNextTo[0] = true;
+            }
+            if ((enemyCur.getY() - enemy.getY()) == -1) {
+                isNextTo[1] = true;
+            }
+            if ((enemyCur.getX() - enemy.getX()) == -1 || (enemyCur.getX() - enemy.getX()) == -2) {
+                isNextTo[2] = true;
+            }
+            if ((enemyCur.getX() - enemy.getX()) == 1 || (enemyCur.getX() - enemy.getX()) == 2) {
+                isNextTo[3] = true;
+            }
+        }
+        return isNextTo;
+    }
+
+    private void movePlayer() {
+
+        checkIfFight();
+
         for (int r=0; r<btnsMove.length; r++) {
             for (int c = 0; c< btnsMove[0].length; c++) {
                 Log.d("button",""+r + c);
@@ -155,66 +247,66 @@ public class MapActivity extends AppCompatActivity {
             }
         }
 
-        Button current = btnsMove[posY][posX];
+        Button current = btnsMove[player.getY()][player.getX()];
 
         current.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
 
         //left
-        if (posX > 0) {
-            Button btn = btnsMove[posY][posX-1];
+        if (player.getX() > 0) {
+            Button btn = btnsMove[player.getY()][player.getX()-1];
             btn.setBackgroundColor(ContextCompat.getColor(context,R.color.map_btn_tint));
             btn.setClickable(true);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    posX -= 1;
-                    moveCharacterImage(ivPlayer,posX,posY);
-                    move();
+                    player.moveLeft();
+                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    movePlayer();
                 }
             });
         }
 
         //right
-        if (posX < btnsMove[0].length - 1 ) {
-            Button btn = btnsMove[posY][posX+1];
+        if (player.getX() < btnsMove[0].length - 1 ) {
+            Button btn = btnsMove[player.getY()][player.getX()+1];
             btn.setBackgroundColor(ContextCompat.getColor(context,R.color.map_btn_tint));
             btn.setClickable(true);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    posX += 1;
-                    moveCharacterImage(ivPlayer,posX,posY);
-                    move();
+                    player.moveRight();
+                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    movePlayer();
                 }
             });
         }
 
         //up
-        if (posY > 0 ) {
-            Button btn = btnsMove[posY-1][posX];
+        if (player.getY() > 0 ) {
+            Button btn = btnsMove[player.getY()-1][player.getX()];
             btn.setBackgroundColor(ContextCompat.getColor(context,R.color.map_btn_tint));
             btn.setClickable(true);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    posY -= 1;
-                    moveCharacterImage(ivPlayer,posX,posY);
-                    move();
+                    player.moveUp();
+                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    movePlayer();
                 }
             });
         }
 
         //down
-        if (posY < btnsMove.length - 1 ) {
-            Button btn = btnsMove[posY+1][posX];
+        if (player.getY() < btnsMove.length - 1 ) {
+            Button btn = btnsMove[player.getY()+1][player.getX()];
             btn.setBackgroundColor(ContextCompat.getColor(context,R.color.map_btn_tint));
             btn.setClickable(true);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    posY += 1;
-                    moveCharacterImage(ivPlayer,posX,posY);
-                    move();
+                    player.moveDown();
+                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    movePlayer();
                 }
             });
         }

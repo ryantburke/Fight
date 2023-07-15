@@ -1,11 +1,13 @@
 package com.burke.fight;
 
+import java.io.Serializable;
+
 /**
  *  Character class defines characters to be placed in world
  *  @author Ryan Burke
  *  @since 1/14/23
  */
-public class Character{
+public class Character implements Serializable {
 
     /**
      *  a cell object that acts as the player "token",
@@ -151,6 +153,22 @@ public class Character{
 
     public void upAttack(int attack){
         attacks[attack].levelUp();
+    }
+
+    public void moveUp(){
+        y--;
+    }
+
+    public void moveDown(){
+        y++;
+    }
+
+    public void moveLeft(){
+        x--;
+    }
+
+    public void moveRight(){
+        x++;
     }
 
 

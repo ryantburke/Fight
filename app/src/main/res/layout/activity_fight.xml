@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/constraint_fight">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl_top"
@@ -69,23 +70,27 @@
         app:layout_constraintGuide_percent="0.95" />
 
     <ImageView
-        android:id="@+id/iv_player"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/gl_base"
-        app:layout_constraintEnd_toStartOf="@+id/guideline6"
-        app:layout_constraintStart_toStartOf="@+id/guideline5"
-        app:layout_constraintTop_toTopOf="@+id/gl_vert_mid"
-        app:srcCompat="@drawable/im_person" />
-
-    <ImageView
         android:id="@+id/iv_enemy"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/gl_vert_mid"
+        android:scaleType="fitCenter"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toStartOf="@+id/guideline6"
+        app:layout_constraintStart_toStartOf="@+id/guideline5"
+        app:layout_constraintTop_toTopOf="@+id/gl_vert_mid"
+        app:layout_constraintBottom_toTopOf="@+id/gl_base"
+        app:srcCompat="@drawable/im_person" />
+
+    <ImageView
+        android:id="@+id/iv_player"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="@+id/gl_top"
+        app:layout_constraintBottom_toTopOf="@+id/gl_vert_mid"
         app:srcCompat="@drawable/im_person" />
 
     <TextView
@@ -93,7 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Player Name"
-        app:layout_constraintBottom_toTopOf="@+id/gl_top"
+        app:layout_constraintBottom_toTopOf="@+id/iv_player"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toStartOf="@+id/guideline3" />
 
@@ -102,7 +107,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enemy Name"
-        app:layout_constraintBottom_toTopOf="@+id/gl_vert_mid"
+        app:layout_constraintBottom_toTopOf="@+id/iv_enemy"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintStart_toStartOf="@+id/guideline5" />
 
@@ -159,7 +164,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline8" />
 
     <TextView
-        android:id="@+id/tv_battle"
+        android:id="@+id/tv_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -167,6 +172,22 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="@+id/guideline6"
         app:layout_constraintTop_toTopOf="@+id/gl_top" />
+
+    <TextView
+        android:id="@+id/tv_player_hp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player Hp"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@+id/iv_player" />
+
+    <TextView
+        android:id="@+id/tv_enemy_hp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enemy Hp"
+        app:layout_constraintStart_toStartOf="@+id/guideline5"
+        app:layout_constraintTop_toBottomOf="@+id/iv_enemy" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
