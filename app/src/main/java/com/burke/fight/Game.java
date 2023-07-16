@@ -14,7 +14,7 @@ public class Game implements Serializable {
     private Game() {
         player = new Player(CharacterFactory.mathTeacher(3,4));
         enemies = new ArrayList<Enemy>();
-        stage = 1;
+        stage = 0;
     }
 
     public static Game getInstance() {
@@ -37,11 +37,20 @@ public class Game implements Serializable {
 
     public ArrayList<Enemy> getEnemies() {
         if (enemies.isEmpty()) {
+            stage++;
             enemies.add(new Enemy(CharacterFactory.mathTeacher(1,2),stage));
             enemies.add(new Enemy(CharacterFactory.burgerFlipper(3,6),stage));
             enemies.add(new Enemy(CharacterFactory.belowAverageStudent(4,2),stage));
             enemies.add(new Enemy(CharacterFactory.organDonor(5,4),stage));
             enemies.add(new Enemy(CharacterFactory.wickedWitch(6,3),stage));
+            if (stage > 1) {
+                for (int i = 1; i<stage; i++) {
+                    for (Enemy enemy:enemies) {
+                        enemy.levelUp();
+                    }
+                }
+
+            }
         }
         return enemies;
     }

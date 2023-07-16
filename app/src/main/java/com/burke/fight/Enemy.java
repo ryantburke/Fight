@@ -21,4 +21,16 @@ public class Enemy extends Character implements Serializable{
     public void setLevel(int level) {
         this.level = level;
     }
+
+    public void levelUp(){
+        level++;
+        for (Attack attack:attacks) {
+            attack.levelUp();
+        }
+        hp_max *= 1.5;
+        hp = hp_max;
+        if (level > 4) {
+            attacks[3].unlock();
+        }
+    }
 }

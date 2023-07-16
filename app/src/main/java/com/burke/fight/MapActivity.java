@@ -21,7 +21,6 @@ import java.util.ArrayList;
 public class MapActivity extends AppCompatActivity {
 
     private Button[][] btnsMove = new Button[8][8];
-
     private Context context = this;
     private Game game = Game.getInstance();
 

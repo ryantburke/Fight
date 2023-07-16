@@ -427,6 +427,10 @@ public class FightActivity extends AppCompatActivity {
 
                 for (int i=0; i<btns.length; i++) {
                     final int k=i;
+
+                    btns[i].setEnabled(true);
+                    btns[i].setClickable(true);
+
                     btns[k].setText(player.getAttack(k).getName());
 
                     if (!player.getAttack(k).isUnlocked()) {
