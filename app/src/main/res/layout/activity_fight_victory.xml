@@ -167,7 +167,7 @@
         android:layout_height="0dp"
         android:layout_margin="10dp"
         android:backgroundTint="@color/battle_btn_tint"
-        android:text="Attack 3"
+        android:text="Attack 4"
         android:textColor="@color/battle_btn_txt"
         app:layout_constraintBottom_toTopOf="@+id/gl_base"
         app:layout_constraintEnd_toStartOf="@+id/guideline"

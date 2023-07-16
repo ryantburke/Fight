@@ -111,7 +111,12 @@ public class FightActivity extends AppCompatActivity {
 
         for (int i=0; i<btnsAttack.length; i++) {
             final int k = i;
-            btnsAttack[i].setText(player.getAttack(i).getName());
+            String attackText = player.getAttack(i).getName() + "\n(" + player.getAttack(i).getNumUsesLeft() + ")";
+            btnsAttack[i].setText(attackText);
+
+            if (player.getAttack(i).getNumUsesLeft() <= 0) {
+                btnsAttack[i].setEnabled(false);
+            }
             btnsAttack[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
