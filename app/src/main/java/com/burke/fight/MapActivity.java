@@ -5,7 +5,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,15 +16,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 public class MapActivity extends AppCompatActivity {
 
     private Button[][] btnsMove = new Button[8][8];
 
     private Context context = this;
+    private Game game = Game.getInstance();
 
     private Player player;
     private ImageView ivPlayer;
-    private Enemy[] enemies;
+    private ArrayList<Enemy> enemies;
     private ImageView[] ivEnemies;
 
     private Handler handler = new Handler();
@@ -38,13 +40,10 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        player = (Player) getIntent().getSerializableExtra("player");
-        if (player == null) {
-            player = new Player(CharacterFactory.mathTeacher(2,3));
-        }
+        player = game.getPlayer();
 
         ivPlayer = findViewById(R.id.iv_player);
-        ivPlayer.setImageResource(R.drawable.im_person);
+        player.setImageView(ivPlayer);
 
         initializeMap();
         initializeEnemies();
@@ -128,17 +127,11 @@ public class MapActivity extends AppCompatActivity {
 
     private void initializeEnemies() {
 
-        enemies = (Enemy[]) getIntent().getSerializableExtra("enemies");
+        enemies = game.getEnemies();
 
-        if (enemies == null) {
-            enemies = new Enemy[5];
-            enemies[0] = new Enemy(CharacterFactory.mathTeacher(1,2),1);
-            enemies[1] = new Enemy(CharacterFactory.burgerFlipper(3,6),1);
-            enemies[2] = new Enemy(CharacterFactory.belowAverageStudent(4,2),1);
-            enemies[3] = new Enemy(CharacterFactory.organDonor(5,4),1);
-            enemies[4] = new Enemy(CharacterFactory.wickedWitch(6,3),1);
+        for (Enemy enemy:enemies) {
+            Log.d("enemy",enemy.getName());
         }
-
 
         ivEnemies = new ImageView[5];
         ivEnemies[0] = findViewById(R.id.iv_enemy1);
@@ -146,20 +139,15 @@ public class MapActivity extends AppCompatActivity {
         ivEnemies[2] = findViewById(R.id.iv_enemy3);
         ivEnemies[3] = findViewById(R.id.iv_enemy4);
         ivEnemies[4] = findViewById(R.id.iv_enemy5);
-        for (int i=0; i<ivEnemies.length; i++) {
-            ivEnemies[i].setImageResource(enemies[i].getImageId());
+        for (int i=0; i<enemies.size(); i++) {
+            enemies.get(i).setImageView(ivEnemies[i]);
         }
 
-        moveCharacterImage(ivPlayer,player.getX(), player.getY());
-        for (int i=0; i<enemies.length; i++) {
+        //move player and enemies
+        moveCharacter(player);
 
-            Enemy enemy = enemies[i];
-            ImageView ivEnemy = ivEnemies[i];
-
-            if (enemy.getHp() > 0) {
-                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
-            }
-
+        for (Enemy enemy:enemies) {
+            moveCharacter(enemy);
         }
 
     }
@@ -175,8 +163,8 @@ public class MapActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (continueMoving) {
-                    for (int i=0; i< enemies.length; i++) {
-                        moveEnemy(enemies[i], ivEnemies[i]);
+                    for (int i=0; i< enemies.size(); i++) {
+                        moveEnemy(enemies.get(i));
                     }
                     moveEnemies();
                 }
@@ -187,29 +175,29 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private void moveEnemy(Enemy enemy, ImageView ivEnemy){
+    private void moveEnemy(Enemy enemy){
         double chance = Math.random();
         if (chance < .5 && enemy.getHp() > 0) {
             int dir = (int) (Math.random() * 4);
 
             if (dir == 0 && enemy.getY() > 0 && !enemyAdjacent(enemy)[0]) {
                 enemy.moveUp();
-                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+                moveCharacter(enemy);
             }
             else if (dir == 1 && enemy.getY() < btnsMove.length - 1 && !enemyAdjacent(enemy)[1]) {
                 enemy.moveDown();
-                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+                moveCharacter(enemy);
             }
             else if (dir == 2 && enemy.getX() > 0 && !enemyAdjacent(enemy)[2]) {
                 enemy.moveLeft();
-                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+                moveCharacter(enemy);
             }
             else if (dir == 3 && enemy.getX() < btnsMove[0].length-1 && !enemyAdjacent(enemy)[3]) {
                 enemy.moveRight();
-                moveCharacterImage(ivEnemy, enemy.getX(), enemy.getY());
+                moveCharacter(enemy);
             }
             else {
-                moveEnemy(enemy, ivEnemy);
+                moveEnemy(enemy);
             }
         }
     }
@@ -258,7 +246,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     player.moveLeft();
-                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    moveCharacter(player);
                     movePlayer();
                 }
             });
@@ -273,7 +261,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     player.moveRight();
-                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    moveCharacter(player);
                     movePlayer();
                 }
             });
@@ -288,7 +276,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     player.moveUp();
-                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    moveCharacter(player);
                     movePlayer();
                 }
             });
@@ -303,7 +291,7 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     player.moveDown();
-                    moveCharacterImage(ivPlayer,player.getX(),player.getY());
+                    moveCharacter(player);
                     movePlayer();
                 }
             });
@@ -311,12 +299,15 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private void moveCharacterImage(ImageView ivCharacter, int xPos, int yPos) {
+    private void moveCharacter(Character character) {
+
+        ImageView ivCharacter = character.getImageView();
+
         ConstraintLayout layout = findViewById(R.id.constraint_map);
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(layout);
 
-        Button current = btnsMove[yPos][xPos];
+        Button current = btnsMove[character.getY()][character.getX()];
 
         constraintSet.connect(ivCharacter.getId(), ConstraintSet.START,    current.getId(), ConstraintSet.START);
         constraintSet.connect(ivCharacter.getId(), ConstraintSet.END,      current.getId(), ConstraintSet.END);
@@ -330,16 +321,13 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void checkIfFight(){
-        for (int i=0; i< enemies.length; i++) {
-            Enemy enemy = enemies[i];
+        for (Enemy enemy:enemies){
             if (player.getX() == enemy.getX() && player.getY() == enemy.getY() && enemy.getHp() > 0) {
                 continueMoving = false;
                 handler.removeCallbacks(runnableMoveEnemies);
                 Intent intentFight = new Intent(context,FightActivity.class);
-                intentFight.putExtra("player",player);
-                intentFight.putExtra("enemyNo",i);
-                intentFight.putExtra("enemies",enemies);
                 Log.d("match",enemy.getName());
+                game.setCurrentEnemy(enemy);
                 startActivity(intentFight);
                 return;
             }

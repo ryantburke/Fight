@@ -18,9 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import java.util.ArrayList;
+
 public class FightActivity extends AppCompatActivity {
+    private Game game = Game.getInstance();
     private Player player;
-    private Enemy[] enemies;
     private Enemy enemy;
     private int turn;
     private TextView tvPlayerName, tvEnemyName, tvPlayerHp, tvEnemyHp, tvDescription, tvDamage;
@@ -43,18 +45,15 @@ public class FightActivity extends AppCompatActivity {
 
         initialize();
 
-        //turn = (int) (Math.random() * 2);
-        turn = 0;
+        turn = (int) (Math.random() * 2);
 
         fight();
 
     }
 
     private void initialize() {
-        player = (Player) getIntent().getSerializableExtra("player");
-        enemies = (Enemy[]) getIntent().getSerializableExtra("enemies");
-        int enemyNo = getIntent().getIntExtra("enemyNo",-1);
-        enemy = enemies[enemyNo];
+        player = game.getPlayer();
+        enemy = game.getCurrentEnemy();
 
         tvPlayerName = findViewById(R.id.tv_player_name);
         tvPlayerName.setText(player.getName());
@@ -478,9 +477,12 @@ public class FightActivity extends AppCompatActivity {
     }
 
     private void returnToMap(){
+        //remove enemy
+        ArrayList<Enemy> enemies = game.getEnemies();
+        enemies.remove(enemy);
+
+        //return to map
         Intent mapIntent = new Intent(context, MapActivity.class);
-        mapIntent.putExtra("player",player);
-        mapIntent.putExtra("enemies", (Enemy[]) getIntent().getSerializableExtra("enemies"));
         startActivity(mapIntent);
     }
 }

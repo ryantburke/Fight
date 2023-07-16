@@ -1,5 +1,7 @@
 package com.burke.fight;
 
+import android.widget.ImageView;
+
 import java.io.Serializable;
 
 /**
@@ -23,6 +25,7 @@ public class Character implements Serializable {
     protected int x;
     protected int y;
     protected int imageId;
+    protected ImageView imageView;
     protected int ID;
     private static int numCharacters;
 
@@ -122,6 +125,15 @@ public class Character implements Serializable {
 
     public void setAttacks(Attack[] attacks) {
         this.attacks = attacks;
+    }
+
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+        imageView.setImageResource(imageId);
     }
 
     @Override
