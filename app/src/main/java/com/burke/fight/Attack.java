@@ -61,7 +61,7 @@ public class Attack implements Serializable {
         this.maxNumUsesLeft = maxNumUsesLeft;
     }
 
-    public boolean getIsUnlocked() {
+    public boolean isUnlocked() {
         return isUnlocked;
     }
 

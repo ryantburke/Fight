@@ -1,6 +1,5 @@
 package com.burke.fight;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +8,7 @@ import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,8 +23,7 @@ public class FightActivity extends AppCompatActivity {
     private Enemy[] enemies;
     private Enemy enemy;
     private int turn;
-
-    private TextView tvPlayerName, tvEnemyName, tvPlayerHp, tvEnemyHp, tvDescription;
+    private TextView tvPlayerName, tvEnemyName, tvPlayerHp, tvEnemyHp, tvDescription, tvDamage;
     private ImageView ivPlayer, ivEnemy;
 
     private Button[] btnsAttack;
@@ -68,6 +67,7 @@ public class FightActivity extends AppCompatActivity {
 
 
         tvDescription = findViewById(R.id.tv_description);
+        tvDamage = findViewById(R.id.tv_damage);
 
         ivPlayer = findViewById(R.id.iv_player);
         ivPlayer.setImageResource(player.getImageId());
@@ -114,18 +114,28 @@ public class FightActivity extends AppCompatActivity {
             String attackText = player.getAttack(i).getName() + "\n(" + player.getAttack(i).getNumUsesLeft() + ")";
             btnsAttack[i].setText(attackText);
 
+            if (!player.getAttack(i).isUnlocked()) {
+                btnsAttack[i].setText("*SECRET*");
+                btnsAttack[i].setEnabled(false);
+                btnsAttack[i].setClickable(false);
+                btnsAttack[i].setBackgroundColor(getResources().getColor(R.color.battle_btn_tint_locked));
+            }
+
             if (player.getAttack(i).getNumUsesLeft() <= 0) {
                 btnsAttack[i].setEnabled(false);
+                btnsAttack[i].setClickable(false);
+                btnsAttack[i].setBackgroundColor(getResources().getColor(R.color.battle_btn_tint_dark));
             }
             btnsAttack[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String text = player.getName() + " attacks with " + player.getAttack(k).getName() + ".";
+                    String text = player.getName() + " attacks with\n" + player.getAttack(k).getName() + ".";
                     tvDescription.setText(text);
 
                     if (player.getAttack(k).useOn(enemy)) {
                         hideAttackButtons();
-                        tvDescription.setText("HIT!");
+
+                        displayDamage(""+player.getAttack(k).getDamage());
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -137,8 +147,8 @@ public class FightActivity extends AppCompatActivity {
                         constraintHit(ivPlayer,ivEnemy);
                     } else {
                         hideAttackButtons();
-                        tvDescription.setText("MISS!");
                         constraintMiss(ivPlayer,ivEnemy);
+                        displayDamage("MISS");
                     }
 
                     new Handler().postDelayed(new Runnable() {
@@ -155,6 +165,19 @@ public class FightActivity extends AppCompatActivity {
         }
     }
 
+    private void displayDamage(String damage) {
+        tvDamage.setText(damage + "!");
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+        tvDamage.startAnimation(fadeIn);
+        tvDamage.startAnimation(fadeOut);
+        fadeIn.setDuration(DELAY_HIT_ANIMATION / 2);
+        fadeIn.setFillAfter(true);
+        fadeOut.setDuration(DELAY_HIT_ANIMATION * 2);
+        fadeOut.setFillAfter(true);
+        //fadeOut.setStartOffset(4200+fadeIn.getStartOffset());
+    }
+
     private void enemyTurn() {
         /*
             need to handle case if enemy has no uses left on any attack
@@ -169,13 +192,13 @@ public class FightActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Attack attack = enemy.getAttack((int) (Math.random() * 4));
-                if (attack.getNumUsesLeft() > 0) {
+                if (attack.getNumUsesLeft() > 0 && attack.isUnlocked()) {
 
-                    String text = enemy.getName() + " attacks with " + attack.getName() + ".";
+                    String text = enemy.getName() + " attacks with\n" + attack.getName() + ".";
                     tvDescription.setText(text);
 
                     if (attack.useOn(player)) {
-                        tvDescription.setText("HIT!");
+                        displayDamage(""+attack.getDamage());
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -185,7 +208,7 @@ public class FightActivity extends AppCompatActivity {
                         ivEnemy.bringToFront();
                         constraintHit(ivEnemy,ivPlayer);
                     } else {
-                        tvDescription.setText("MISS!");
+                        displayDamage("MISS");
                         constraintMiss(ivEnemy,ivPlayer);
                     }
 
@@ -337,12 +360,12 @@ public class FightActivity extends AppCompatActivity {
         ivVictor.setImageResource(victor.getImageId());
         ivLoser.setImageResource(loser.getImageId());
         ivLoser.setVisibility(View.INVISIBLE);
-        tvDescription.setText(victor.getWinMessage());
+        tvDescription.setText(victor.getName() + victor.getWinMessage());
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                tvDescription.setText(loser.getLoseMessage());
+                tvDescription.setText(loser.getName() + loser.getLoseMessage());
 
                 ivLoser.setVisibility(View.VISIBLE);
 
@@ -381,6 +404,7 @@ public class FightActivity extends AppCompatActivity {
         TextView tvTitle = findViewById(R.id.tv_title);
 
         tvTitle.setText("LEVEL UP");
+        tvDescription.setText("Select your upgrade");
 
         Button[] btns = new Button[4];
         btns[0] = findViewById(R.id.btn_atk1);
@@ -405,6 +429,13 @@ public class FightActivity extends AppCompatActivity {
                 for (int i=0; i<btns.length; i++) {
                     final int k=i;
                     btns[k].setText(player.getAttack(k).getName());
+
+                    if (!player.getAttack(k).isUnlocked()) {
+                        btns[i].setText("*SECRET*");
+                        btns[i].setEnabled(false);
+                        btns[i].setClickable(false);
+                        btns[i].setBackgroundColor(getResources().getColor(R.color.battle_btn_tint_locked));
+                    }
                     btns[k].setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -432,7 +463,8 @@ public class FightActivity extends AppCompatActivity {
             }
         });
 
-        if (player.getAttack(3).getIsUnlocked()) {
+        if (player.getAttack(3).isUnlocked()) {
+            btns[3].setClickable(false);
             btns[3].setEnabled(false);
         }
 
