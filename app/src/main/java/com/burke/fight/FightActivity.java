@@ -324,6 +324,11 @@ public class FightActivity extends AppCompatActivity {
         ImageView ivLoser = findViewById(R.id.iv_loser);
         TextView tvDescription = findViewById(R.id.tv_description);
 
+        findViewById(R.id.btn_atk1).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn_atk2).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn_atk3).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn_atk4).setVisibility(View.INVISIBLE);
+
         ivVictor.setImageResource(victor.getImageId());
         ivLoser.setImageResource(loser.getImageId());
         ivLoser.setVisibility(View.INVISIBLE);
@@ -348,13 +353,13 @@ public class FightActivity extends AppCompatActivity {
                 TransitionManager.beginDelayedTransition(layout,transition);
                 constraintSet.applyTo(layout);
                 ivLoser.invalidate();
+
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Intent mapIntent = new Intent(context, MapActivity.class);
-                        mapIntent.putExtra("player",player);
-                        mapIntent.putExtra("enemies", (Enemy[]) getIntent().getSerializableExtra("enemies"));
-                        startActivity(mapIntent);
+
+                        upgrade();
+
                     }
                 }, 2000);
 
@@ -362,5 +367,83 @@ public class FightActivity extends AppCompatActivity {
             }
         },DELAY_VICTORY_SCREEN);
 
+    }
+
+    private void upgrade(){
+
+        player.levelUp();
+
+        TextView tvTitle = findViewById(R.id.tv_title);
+
+        tvTitle.setText("LEVEL UP");
+
+        Button[] btns = new Button[4];
+        btns[0] = findViewById(R.id.btn_atk1);
+        btns[1] = findViewById(R.id.btn_atk2);
+        btns[2] = findViewById(R.id.btn_atk3);
+        btns[3] = findViewById(R.id.btn_atk4);
+
+        for (Button btn:btns) {
+            btn.setVisibility(View.VISIBLE);
+        }
+
+        btns[0].setText("Upgrade Attack");
+        btns[1].setText("Add HP");
+        btns[2].setText("Restore");
+        btns[3].setText("Unlock Secret Attack");
+
+        btns[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvTitle.setText("SELECT ATTACK");
+
+                for (int i=0; i<btns.length; i++) {
+                    final int k=i;
+                    btns[k].setText(player.getAttack(k).getName());
+                    btns[k].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            player.getAttack(k).levelUp();
+                            returnToMap();
+                        }
+                    });
+                }
+            }
+        });
+
+        btns[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                player.addMaxHp();
+                returnToMap();
+            }
+        });
+
+        btns[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                player.restore();
+                returnToMap();
+            }
+        });
+
+        if (player.getAttack(3).getIsUnlocked()) {
+            btns[3].setEnabled(false);
+        }
+
+        btns[3].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                player.unlockSecretAttack();
+                returnToMap();
+            }
+        });
+    }
+
+    private void returnToMap(){
+        Intent mapIntent = new Intent(context, MapActivity.class);
+        mapIntent.putExtra("player",player);
+        mapIntent.putExtra("enemies", (Enemy[]) getIntent().getSerializableExtra("enemies"));
+        startActivity(mapIntent);
     }
 }
