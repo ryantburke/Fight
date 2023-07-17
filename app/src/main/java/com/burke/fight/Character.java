@@ -1,5 +1,6 @@
 package com.burke.fight;
 
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.Serializable;
@@ -25,15 +26,16 @@ public class Character implements Serializable {
     protected int x;
     protected int y;
     protected int imageId;
+    protected int[] imageIds;
     protected ImageView imageView;
     protected int ID;
     private static int numCharacters;
 
     public Character() {}
 
-    public Character(String name, int imageId, int hp_max, Attack[] attacks, String winMessage, String loseMessage, int x, int y) {
+    public Character(String name, int[] imageIds, int hp_max, Attack[] attacks, String winMessage, String loseMessage, int x, int y) {
         this.name = name;
-        this.imageId = imageId;
+        this.imageIds = imageIds;
         this.hp_max = hp_max;
         this.hp = hp_max;
         this.attacks = attacks;
@@ -47,6 +49,7 @@ public class Character implements Serializable {
     public Character(Character character) {
         this.name = character.getName();
         this.imageId = character.imageId;
+        this.imageIds = character.imageIds;
         this.hp_max = character.getHp_max();
         this.hp = character.getHp();
         this.attacks = character.getAttacks();
@@ -131,9 +134,17 @@ public class Character implements Serializable {
         return imageView;
     }
 
+    public int[] getImageIds(){
+        return imageIds;
+    }
+
     public void setImageView(ImageView imageView) {
         this.imageView = imageView;
         imageView.setImageResource(imageId);
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
     @Override

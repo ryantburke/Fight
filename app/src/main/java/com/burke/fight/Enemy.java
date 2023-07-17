@@ -12,6 +12,7 @@ public class Enemy extends Character implements Serializable{
     public Enemy(Character character, int level) {
         super(character);
         this.level = level;
+        this.imageId = imageIds[(level-1) % imageIds.length];
     }
 
     public int getLevel() {
